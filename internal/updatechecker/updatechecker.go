@@ -2,6 +2,7 @@ package updatechecker
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/fatih/color"
 	"github.com/steveiliop56/puck/internal/config"
@@ -30,17 +31,17 @@ func GetUpgradable(server config.Server) (bool, string, error) {
 		return false, "", validaterErr
 	}
 
-	var command = "echo " + server.Password + "| sudo -S apt list --upgradable"
+	var command = "echo " + server.Password + "| sudo -S apt list --upgradable 2>/dev/null | grep upgradable | wc -l"
 	var sshOutput, sshErr = ssh.RunCommandRich(server, command)
 	if sshErr != nil {
 		return false, sshOutput, sshErr
 	}
 
-	if sshOutput == "Listing... Done" {
-		return true, sshOutput, nil
+	if strings.Trim(sshOutput, "\n") == "0" {
+		return false, sshOutput, nil
 	}
 
-	return false, sshOutput, nil
+	return true, sshOutput, nil
 }
 
 func GetUpgrades(server config.Server) {
@@ -65,6 +66,7 @@ func GetUpgrades(server config.Server) {
 		fmt.Print("\n✔ ")
 		color.Unset()
 		fmt.Printf("Server %s has available updates!\n", server.Name)
+	} else {
+		fmt.Printf("\nNo updates for server %s\n", server.Name)
 	}
-	fmt.Printf("\nNo updates for server %s\n", server.Name)
 }
