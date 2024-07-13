@@ -9,6 +9,7 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
+// Given the ssh credentials it runs the command
 func RunCommand(hostname string, username string, password string, privateKey string, command string) (string, error) {
 	var authConfig []ssh.AuthMethod
 
@@ -53,6 +54,7 @@ func RunCommand(hostname string, username string, password string, privateKey st
 	return b.String(), err
 }
 
+// Given the server struct and the command it just check for the private key and uses it too but other than that it just returns the ssh output
 func RunCommandRich(server config.Server, command string) (string, error) {
 	var privateKey = ""
 

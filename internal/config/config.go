@@ -1,5 +1,6 @@
 package config
 
+// Schema for each server
 type Server struct {
 	Name string `validate:"required"`
 	Hostname string `validate:"required"`
@@ -9,6 +10,7 @@ type Server struct {
 	NoSudo bool
 }
 
+// Main config schema
 type Config struct {
 	Servers []Server
 }

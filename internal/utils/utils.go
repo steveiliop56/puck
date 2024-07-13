@@ -7,6 +7,7 @@ import (
 	"github.com/steveiliop56/puck/internal/ssh"
 )
 
+// Given a server struct it connects using ssh and gets the os release, if it succeeds it returns the distro name else the error
 func GetDistro(server config.Server) (string, error) {
 	var sshOutput, sshErr = ssh.RunCommandRich(server, `cat /etc/os-release | grep "^ID=" | awk '{print $1}' | cut -d "=" -f2 | cut -d '"' -f2`)
 	if sshErr != nil {
@@ -15,6 +16,7 @@ func GetDistro(server config.Server) (string, error) {
 	return sshOutput, nil
 }
 
+// Given a distro it gets the 2 correct commands and returns them as a list, if the distro itsn't listed it returns skip which means unsupported
 func GetCommand(distro string) ([]string, bool) {
 	var commands []string
 	var skip = false;

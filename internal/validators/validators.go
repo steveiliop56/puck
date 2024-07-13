@@ -7,6 +7,7 @@ import (
 
 var validate *validator.Validate
 
+// Given a server struct it validates that all required fields exist, if they don't it returns an error
 func ValidateServer(server config.Server) (error) {
 	validate = validator.New(validator.WithRequiredStructEnabled())
 

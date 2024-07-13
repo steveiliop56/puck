@@ -12,6 +12,7 @@ func init() {
 	rootCmd.AddCommand(versionCmd)
 }
 
+// Just prints the version from the constants
 var versionCmd = &cobra.Command{
 	Use: "version",
 	Short: "Get the cli version.",

@@ -14,15 +14,18 @@ import (
 	"github.com/steveiliop56/puck/internal/updatechecker"
 )
 
+// Adds command to cobra
 func init() {
 	rootCmd.AddCommand(checkCmd)
 }
 
+// Check command
 var checkCmd = &cobra.Command{
 	Use: "check",
 	Short: "Check all servers for updates.",
 	Long: "Check all servers defined in the configuration file for updates.",
 	Run: func(cmd *cobra.Command, args []string) {
+		// Reads the config file
 		var configRaw, readErr = os.ReadFile(configFile)
 		if readErr != nil {
 			color.Set(color.FgRed)
@@ -32,6 +35,7 @@ var checkCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		// Parses the config file
 		var config config.Config
 		var unmarshalErr = yaml.Unmarshal(configRaw, &config)
 		if unmarshalErr != nil {
@@ -42,14 +46,17 @@ var checkCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		// Create 2 lists for skipped and upgradable servers
 		var upgradable = []string{}
 		var skipped = []string{}
 
+		// Create spinner
 		var spinnerAnimation = []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
 		var spinner = spinner.New(spinnerAnimation, 100*time.Millisecond, spinner.WithColor("blue"))
 		spinner.Suffix = " Checking for updates...\n"
 		spinner.Start()
 
+		// For each server check if its upgradable and add it in the upgradable list, if its skipped add it to the skipped list and if there is an error stop the cli
 		for _, element := range config.Servers {
 			var hasUpdate, isSkipped, err = updatechecker.GetUpgrades(element)
 			if err != nil {
@@ -68,6 +75,7 @@ var checkCmd = &cobra.Command{
 			}
 		}
 
+		// Stops the spinner and shows the check finished message
 		spinner.Stop()
 
 		color.Set(color.FgGreen)
@@ -75,6 +83,7 @@ var checkCmd = &cobra.Command{
 		color.Unset()
 		fmt.Println("Update check finished!")
 		
+		// Prints each server's status (skipped, upgradable)
 		for _, element := range config.Servers {
 			if slices.Contains(upgradable, element.Name) {
 				color.Set(color.FgBlue)

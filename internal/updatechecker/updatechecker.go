@@ -9,6 +9,7 @@ import (
 	"github.com/steveiliop56/puck/internal/validators"
 )
 
+// Given a server struct and the package manager command it runs the command and returns the output or the error
 func UpdateCache(server config.Server, pacakgeManagerCommand string) (string, error) {
 	var validaterErr = validators.ValidateServer(server)
 	if validaterErr != nil {
@@ -31,6 +32,7 @@ func UpdateCache(server config.Server, pacakgeManagerCommand string) (string, er
 	return sshOutput, nil
 }
 
+// Given a server struct and the package manager command it runs the command and returns the output and if the system has upgrades or the error
 func GetUpgradable(server config.Server, pacakgeManagerCommand string) (bool, string, error) {
 	var validaterErr = validators.ValidateServer(server)
 	if validaterErr != nil {
@@ -57,6 +59,7 @@ func GetUpgradable(server config.Server, pacakgeManagerCommand string) (bool, st
 	return true, sshOutput, nil
 }
 
+// Given a server struct it checks for updates/upgrades and returns if the server has updates, if the server is skipepd and if there was an error
 func GetUpgrades(server config.Server) (bool, bool, error) {
 	var distro, distroErr = utils.GetDistro(server)
 	if distroErr != nil {

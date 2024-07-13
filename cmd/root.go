@@ -8,6 +8,7 @@ import (
 
 var configFile string
 
+// Help information
 var rootCmd = &cobra.Command{
 	Use:   "puck",
 	Short: "A simple tool to check for apt package updates on multiple servers.",
@@ -15,6 +16,7 @@ var rootCmd = &cobra.Command{
 apt package updates.`,
 }
 
+// Executes cobra
 func Execute() {
 	err := rootCmd.Execute()
 	if err != nil {
@@ -22,6 +24,7 @@ func Execute() {
 	}
 }
 
+// Adds flags
 func init() {
 	rootCmd.PersistentFlags().StringVarP(&configFile, "config", "c", "puck.yml", "puck configuration file")
 }
