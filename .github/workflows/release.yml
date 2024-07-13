@@ -1,0 +1,77 @@
+name: Release
+on:
+  workflow_dispatch:
+
+jobs:
+  create-tag:
+    runs-on: ubuntu
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get version from contants
+        id: get_version
+        run: echo "version=$(cat internal/constants/constants.go | grep Version | awk '{print $4}' | tr -d '"')" >> $GITHUB_OUTPUT
+
+      - name: Create tag
+        uses: rickstaa/action-create-tag@v1
+        with:
+          tag: ${{ steps.get_version.outputs.version }}
+
+  build-cli:
+    needs: create-tag
+    runs-on: ubuntu
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.22.5"
+
+      - name: Build CLI for amd64
+        run: GOOS=linux GOARCH=arm64 go build . && mv puck puck-linux-arm64
+      - name: Build CLI for arm64
+        run: GOOS=linux GOARCH=amd64 go build . && mv puck puck-linux-amd64
+
+      - name: Build CLI for windows arm64
+        run: GOOS=windows GOARCH=amd64 go build . && mv puck.exe puck-windows-arm64.exe
+
+      - name: Build CLI for windows amd64
+        run: GOOS=windows GOARCH=amd64 go build . && mv puck.exe puck-windows-amd64.exe
+
+      - name: Build CLI for darwin
+        run: GOOS=darwin GOARCH=arm64 go build . && mv puck puck-darwin-arm64
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: binaries
+          path: |
+            puck-linux-arm64
+            puck-linux-amd64
+            puck-windows-arm64.exe
+            puck-windows-amd64.exe
+            puck-darwin-arm64
+
+  relese:
+    needs: [create-tag, build-cli]
+    runs-on: ubuntu
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: binaries
+          path: binaries
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ needs.create-tag.outputs.version }}
+          name: ${{ needs.create-tag.outputs.version }}
+          files: binaries/*
