@@ -8,7 +8,7 @@ on:
 
 jobs:
   create-tag:
-    runs-on: ubuntu
+    runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.get_version.outputs.version }}
     steps:
@@ -26,7 +26,7 @@ jobs:
 
   build-cli:
     needs: create-tag
-    runs-on: ubuntu
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -64,7 +64,7 @@ jobs:
 
   alpha-relese:
     needs: [create-tag, build-cli]
-    runs-on: ubuntu
+    runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v4
