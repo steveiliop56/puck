@@ -43,6 +43,7 @@ var checkCmd = &cobra.Command{
 		}
 
 		var upgradable = []string{}
+		var skipped = []string{}
 
 		var spinnerAnimation = []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
 		var spinner = spinner.New(spinnerAnimation, 100*time.Millisecond, spinner.WithColor("blue"))
@@ -50,7 +51,7 @@ var checkCmd = &cobra.Command{
 		spinner.Start()
 
 		for _, element := range config.Servers {
-			var hasUpdate, err = updatechecker.GetUpgrades(element)
+			var hasUpdate, isSkipped, err = updatechecker.GetUpgrades(element)
 			if err != nil {
 				spinner.Stop()
 				color.Set(color.FgRed)
@@ -61,6 +62,9 @@ var checkCmd = &cobra.Command{
 			}
 			if hasUpdate {
 				upgradable = append(upgradable, element.Name)
+			}
+			if isSkipped {
+				skipped = append(skipped, element.Name)
 			}
 		}
 
@@ -77,6 +81,11 @@ var checkCmd = &cobra.Command{
 				fmt.Print("↻ ")
 				color.Unset()
 				fmt.Printf("Server %s has an update!\n", element.Name)
+			} else if slices.Contains(skipped, element.Name) {
+				color.Set(color.FgYellow)
+				fmt.Print("● ")
+				color.Unset()
+				fmt.Printf("Server %s skipped, unsupported distro.\n", element.Name)
 			} else {
 				color.Set(color.FgGreen)
 				fmt.Print("✔ ")

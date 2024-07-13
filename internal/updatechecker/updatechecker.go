@@ -5,10 +5,11 @@ import (
 
 	"github.com/steveiliop56/puck/internal/config"
 	"github.com/steveiliop56/puck/internal/ssh"
+	"github.com/steveiliop56/puck/internal/utils"
 	"github.com/steveiliop56/puck/internal/validators"
 )
 
-func UpdateCache(server config.Server) (string, error) {
+func UpdateCache(server config.Server, pacakgeManagerCommand string) (string, error) {
 	var validaterErr = validators.ValidateServer(server)
 	if validaterErr != nil {
 		return "", validaterErr
@@ -17,9 +18,9 @@ func UpdateCache(server config.Server) (string, error) {
 	var command = ""
 
 	if server.NoSudo {
-		command = "apt update"
+		command = pacakgeManagerCommand
 	} else {
-		command = "echo " + server.Password + "| sudo -S apt update"
+		command = "echo " + server.Password + "| sudo -S " + pacakgeManagerCommand
 	}
 
 	var sshOutput, sshErr = ssh.RunCommandRich(server, command)
@@ -30,7 +31,7 @@ func UpdateCache(server config.Server) (string, error) {
 	return sshOutput, nil
 }
 
-func GetUpgradable(server config.Server) (bool, string, error) {
+func GetUpgradable(server config.Server, pacakgeManagerCommand string) (bool, string, error) {
 	var validaterErr = validators.ValidateServer(server)
 	if validaterErr != nil {
 		return false, "", validaterErr
@@ -39,9 +40,9 @@ func GetUpgradable(server config.Server) (bool, string, error) {
 	var command = "";
 
 	if server.NoSudo {
-		command = "apt list --upgradable 2>/dev/null | grep upgradable | wc -l"
+		command = pacakgeManagerCommand
 	} else {
-		command = "echo " + server.Password + "| sudo -S apt list --upgradable 2>/dev/null | grep upgradable | wc -l"
+		command = "echo " + server.Password + "| sudo -S " + pacakgeManagerCommand
 	}
 
 	var sshOutput, sshErr = ssh.RunCommandRich(server, command)
@@ -56,17 +57,25 @@ func GetUpgradable(server config.Server) (bool, string, error) {
 	return true, sshOutput, nil
 }
 
-func GetUpgrades(server config.Server) (bool, error) {
-	var _, updateCacheErr = UpdateCache(server)
-	if updateCacheErr != nil {
-		return false, updateCacheErr;
+func GetUpgrades(server config.Server) (bool, bool, error) {
+	var distro, distroErr = utils.GetDistro(server)
+	if distroErr != nil {
+		return false, false, distroErr
 	}
-	var hasUpdate, _, upgradableErr = GetUpgradable(server)
+	var pacakgeManagerCommand, skipped = utils.GetCommand(distro)
+	if skipped {
+		return false, true, nil
+	}
+	var _, updateCacheErr = UpdateCache(server, pacakgeManagerCommand[0])
+	if updateCacheErr != nil {
+		return false, false, updateCacheErr;
+	}
+	var hasUpdate, _, upgradableErr = GetUpgradable(server, pacakgeManagerCommand[1])
 	if upgradableErr != nil {
-		return false, upgradableErr;
+		return false, false, upgradableErr;
 	}
 	if hasUpdate {
-		return true, nil;
+		return true, false, nil;
 	}
-	return false, nil;
+	return false, false, nil;
 }

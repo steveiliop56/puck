@@ -25,7 +25,7 @@ Well about that...
 - [ ] Notifications (via ntfy/discord)
 - [x] Ability not to use sudo (for systems running with root)
 - [ ] Update systems?
-- [ ] Support for other package managers (currently only supporting apt)
+- [x] Support for other package managers (currently only supporting apt)
 
 ### Running 🏃
 
