@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"slices"
 	"time"
 
 	"github.com/briandowns/spinner"
@@ -40,18 +41,48 @@ var checkCmd = &cobra.Command{
 			fmt.Print("Cannot parse config!")
 			os.Exit(1)
 		}
+
+		var upgradable = []string{}
+
 		var spinnerAnimation = []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
 		var spinner = spinner.New(spinnerAnimation, 100*time.Millisecond, spinner.WithColor("blue"))
-		spinner.Suffix = " Checking for updates..."
+		spinner.Suffix = " Checking for updates...\n"
 		spinner.Start()
+
 		for _, element := range config.Servers {
-			spinner.Suffix = " Checking for updates on server " + element.Name
-			updatechecker.GetUpgrades(element)
+			var hasUpdate, err = updatechecker.GetUpgrades(element)
+			if err != nil {
+				spinner.Stop()
+				color.Set(color.FgRed)
+				fmt.Print("✗ ")
+				color.Unset()
+				fmt.Printf("Error in getting updates for server %s. Error: %s\n", element.Name, err)
+				os.Exit(1)
+			}
+			if hasUpdate {
+				upgradable = append(upgradable, element.Name)
+			}
 		}
+
 		spinner.Stop()
+
 		color.Set(color.FgGreen)
 		fmt.Print("✔ ")
 		color.Unset()
-		fmt.Printf("Proccess finished!\n")
+		fmt.Println("Update check finished!")
+		
+		for _, element := range config.Servers {
+			if slices.Contains(upgradable, element.Name) {
+				color.Set(color.FgBlue)
+				fmt.Print("↻ ")
+				color.Unset()
+				fmt.Printf("Server %s has an update!\n", element.Name)
+			} else {
+				color.Set(color.FgGreen)
+				fmt.Print("✔ ")
+				color.Unset()
+				fmt.Printf("Server %s is up to date!\n", element.Name)
+			}
+		}
 	},
 }

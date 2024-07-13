@@ -1,10 +1,8 @@
 package updatechecker
 
 import (
-	"fmt"
 	"strings"
 
-	"github.com/fatih/color"
 	"github.com/steveiliop56/puck/internal/config"
 	"github.com/steveiliop56/puck/internal/ssh"
 	"github.com/steveiliop56/puck/internal/validators"
@@ -44,29 +42,17 @@ func GetUpgradable(server config.Server) (bool, string, error) {
 	return true, sshOutput, nil
 }
 
-func GetUpgrades(server config.Server) {
+func GetUpgrades(server config.Server) (bool, error) {
 	var _, updateCacheErr = UpdateCache(server)
 	if updateCacheErr != nil {
-		color.Set(color.FgRed)
-		fmt.Print("\n✗ ")
-		color.Unset()
-		fmt.Printf("Failed to update cache of server %s, error: %s\n", server.Name, updateCacheErr)
-		return;
+		return false, updateCacheErr;
 	}
 	var hasUpdate, _, upgradableErr = GetUpgradable(server)
 	if upgradableErr != nil {
-		color.Set(color.FgRed)
-		fmt.Print("\n✗ ")
-		color.Unset()
-		fmt.Printf("Failed to get upgradable packages of server %s, error: %s\n", server.Name, upgradableErr)
-		return;
+		return false, upgradableErr;
 	}
 	if hasUpdate {
-		color.Set(color.FgGreen)
-		fmt.Print("\n✔ ")
-		color.Unset()
-		fmt.Printf("Server %s has available updates!\n", server.Name)
-	} else {
-		fmt.Printf("\nNo updates for server %s\n", server.Name)
+		return true, nil;
 	}
+	return false, nil;
 }
