@@ -1,0 +1,5 @@
+# Puck config
+puck*.yml
+
+# Builds
+puck
