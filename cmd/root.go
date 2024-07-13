@@ -10,9 +10,9 @@ var configFile string
 
 var rootCmd = &cobra.Command{
 	Use:   "puck",
-	Short: "A simple tool to check for apt package updates.",
+	Short: "A simple tool to check for apt package updates on multiple servers.",
 	Long: `Puck (Package Update Checking Kit) is a simple tool that connects to your servers and checks for
-apt package updates and then reports them either in a beatiful CLI or in a UI.`,
+apt package updates.`,
 }
 
 func Execute() {
