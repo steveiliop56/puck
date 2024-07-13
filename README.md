@@ -57,6 +57,14 @@ servers:
 
 > Note 📝: The password field is used for gaining root privileges with sudo so the apt commands can be run. If you use a raspberry pi which allows the usage of sudo without password authentication you can skip the password field and only ssh with the private key
 
+After you make your configuration file you can use puck like so:
+
+```bash
+./puck check
+```
+
+Puck be default will look for `puck.yml` but if you wish to use a different file name you can use the `-c` or `--config` flag to specify a custom path.
+
 ### Requirements on servers
 
 Right now puck has a 2 requirements on the server side so it can check for updates. Firstly it need the server to run a debian based disto which uses apt and it also needs sudo to be installed. Both of these requirements will become obsolete in the future.
