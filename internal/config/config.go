@@ -6,6 +6,7 @@ type Server struct {
 	Username string `validate:"required"`
 	Password string
 	PrivateKey string
+	NoSudo bool
 }
 
 type Config struct {
