@@ -3,7 +3,7 @@
 Puck (Package Update Checking Kit _yes I know it sucks_) is a simple tool that connects to your servers and checks for
 apt package updates.
 
-<img alt="Screenshot" src="screenshots/screenshot.png" width="533" height="337">
+<img alt="Screenshot" src="screenshots/screenshot.png" width="545" height="299">
 
 > Warning ⚠️: Puck is in early stages of development it still has a lot of missing features I want to add. I hope I can have a stable release soon.
 
@@ -12,7 +12,7 @@ apt package updates.
 Well about that...
 
 - Tiny CLI (only 10mb)
-- Beatiful CLI (I guess)
+- Beautiful CLI
 - Really fast\*
 
 > Puck itself is really fast since it's written in GO but the actual speed depends on the server
@@ -23,13 +23,17 @@ Well about that...
 - [ ] Docker Image
 - [ ] Web UI
 - [ ] Notifications (via ntfy/discord)
-- [ ] Ability to not use sudo (for systems running with root)
+- [x] Ability not to use sudo (for systems running with root)
 - [ ] Update systems?
-- [ ] Support for other package managers
+- [ ] Support for other package managers (currently only supporting apt)
 
 ### Running 🏃
 
-The only way to run puck for now is by building it from source (I am currently working on the github actions workflow) this can be done very easily by installing go then running:
+Puck is built for multiple architectures and systems and you can simply download it and run it from the release page, thats it!
+
+### Building 🛠️
+
+You can build `puck` very easily by installing go and git on your pc and then simply running:
 
 ```bash
 go build .
@@ -53,9 +57,19 @@ servers:
     username: me
     password: reallysecurepassword
     privateKey: /some/path/id_rsa
+    noSudo: true
 ```
 
-> Note 📝: The password field is used for gaining root privileges with sudo so the apt commands can be run. If you use a raspberry pi which allows the usage of sudo without password authentication you can skip the password field and only ssh with the private key
+Here is the reference table for the available options:
+
+| Name         | Description                                       | Type      | Required |
+| ------------ | ------------------------------------------------- | --------- | -------- |
+| `name`       | Name of the server you can put whatever you want. | `string`  | yes      |
+| `hostname`   | IP or hostname of the server.                     | `string`  | yes      |
+| `username`   | Username for ssh.                                 | `string`  | yes      |
+| `password`   | Password used for ssh and for sudo.               | `string`  | yes      |
+| `privateKey` | Private key path to use for ssh.                  | `string`  | yes      |
+| `noSudo`     | Don't use sudo to run the commands.               | `boolean` | no       |
 
 After you make your configuration file you can use puck like so:
 
@@ -64,10 +78,6 @@ After you make your configuration file you can use puck like so:
 ```
 
 Puck be default will look for `puck.yml` but if you wish to use a different file name you can use the `-c` or `--config` flag to specify a custom path.
-
-### Requirements on servers
-
-Right now puck has a 2 requirements on the server side so it can check for updates. Firstly it need the server to run a debian based disto which uses apt and it also needs sudo to be installed. Both of these requirements will become obsolete in the future.
 
 ### Contributing ❤️
 
