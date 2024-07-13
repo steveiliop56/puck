@@ -19,7 +19,7 @@ Well about that...
 
 ### Todo 📃
 
-- [ ] Redesign the CLI UI
+- [x] Redesign the CLI UI
 - [ ] Docker Image
 - [ ] Web UI
 - [ ] Notifications (via ntfy/discord)
