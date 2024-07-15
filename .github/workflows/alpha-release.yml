@@ -78,7 +78,7 @@ jobs:
           push: true
           tags: ghcr.io/${{ github.repository_owner }}/puck:${{ needs.create-tag.outputs.version }}, ghcr.io/${{ github.repository_owner }}/puck:latest
 
-  alpha-relese:
+  alpha-release:
     needs: [create-tag, build-cli, build-image]
     runs-on: ubuntu-latest
     steps:
