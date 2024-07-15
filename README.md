@@ -23,7 +23,7 @@ Well about that...
 - [x] Docker Image
 - [ ] Web UI
 - [ ] Discord notifications
-- [ ] Ntfy notifications
+- [x] Ntfy notifications
 - [x] Ability not to use sudo (for systems running with root)
 - [ ] Update systems?
 - [x] Support for other package managers (currently only supporting apt)
@@ -46,33 +46,7 @@ The build is really fast and when it finished you should have a binary called `p
 
 ### Usage
 
-Puck is really simple to use, it works using a simple yaml configuration file. Here is an example:
-
-```yaml
-servers:
-  - name: myserver
-    hostname: 192.168.1.5
-    username: someone
-    password: hello!
-
-  - name: server2
-    hostname: server2.local
-    username: me
-    password: reallysecurepassword
-    privateKey: /some/path/id_rsa
-    noSudo: true
-```
-
-Here is the reference table for the available options:
-
-| Name         | Description                                       | Type      | Required |
-| ------------ | ------------------------------------------------- | --------- | -------- |
-| `name`       | Name of the server you can put whatever you want. | `string`  | yes      |
-| `hostname`   | IP or hostname of the server.                     | `string`  | yes      |
-| `username`   | Username for ssh.                                 | `string`  | yes      |
-| `password`   | Password used for ssh and for sudo.               | `string`  | yes      |
-| `privateKey` | Private key path to use for ssh.                  | `string`  | yes      |
-| `noSudo`     | Don't use sudo to run the commands.               | `boolean` | no       |
+To begin with you need a configuration file, check out the [wiki](https://github.com/steveiliop56/puck/wiki) on how to create your configuration file.
 
 #### Running with binary 🗑️
 
@@ -82,7 +56,7 @@ After you make your configuration file you can run puck using this command:
 ./puck check
 ```
 
-Puck be default will look for `puck.yml` but if you wish to use a different file name you can use the `-c` or `--config` flag to specify a custom path.
+Puck be default will look for `puck.yml` but if you wish to use a different file name you can use the `-c` or `--config` flag to specify a custom path, this is also the same for the docker image.
 
 #### Running with docker 🐋
 
