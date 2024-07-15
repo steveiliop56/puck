@@ -42,15 +42,6 @@ jobs:
       - name: Build CLI for arm64
         run: GOOS=linux GOARCH=amd64 go build . && mv puck puck-linux-amd64
 
-      - name: Build CLI for windows arm64
-        run: GOOS=windows GOARCH=amd64 go build . && mv puck.exe puck-windows-arm64.exe
-
-      - name: Build CLI for windows amd64
-        run: GOOS=windows GOARCH=amd64 go build . && mv puck.exe puck-windows-amd64.exe
-
-      - name: Build CLI for darwin
-        run: GOOS=darwin GOARCH=arm64 go build . && mv puck puck-darwin-arm64
-
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -58,9 +49,6 @@ jobs:
           path: |
             puck-linux-arm64
             puck-linux-amd64
-            puck-windows-arm64.exe
-            puck-windows-amd64.exe
-            puck-darwin-arm64
 
   alpha-relese:
     needs: [create-tag, build-cli]
