@@ -20,9 +20,10 @@ Well about that...
 ### Todo 📃
 
 - [x] Redesign the CLI UI
-- [ ] Docker Image
+- [x] Docker Image
 - [ ] Web UI
-- [ ] Notifications (via ntfy/discord)
+- [ ] Discord notifications
+- [ ] Ntfy notifications
 - [x] Ability not to use sudo (for systems running with root)
 - [ ] Update systems?
 - [x] Support for other package managers (currently only supporting apt)
@@ -40,6 +41,8 @@ go build .
 ```
 
 The build is really fast and when it finished you should have a binary called `puck` in your current directory.
+
+> Note 📝: If you like so you can build the app for different architectures using this command `GOOS=windows GOARCH=amd64 go build .` which will create puck.exe for windows amd64. While I am not actively testing this on other architectures it should work just fine.
 
 ### Usage
 
@@ -71,13 +74,23 @@ Here is the reference table for the available options:
 | `privateKey` | Private key path to use for ssh.                  | `string`  | yes      |
 | `noSudo`     | Don't use sudo to run the commands.               | `boolean` | no       |
 
-After you make your configuration file you can use puck like so:
+#### Running with binary 🗑️
+
+After you make your configuration file you can run puck using this command:
 
 ```bash
 ./puck check
 ```
 
 Puck be default will look for `puck.yml` but if you wish to use a different file name you can use the `-c` or `--config` flag to specify a custom path.
+
+#### Running with docker 🐋
+
+If you prefer docker you can run puck using this command:
+
+```bash
+docker run -t --rm --name=puck -v /some/path/puck.yml:/puck.yml:ro ghcr.io/steveiliop56/puck
+```
 
 ### Contributing ❤️
 
