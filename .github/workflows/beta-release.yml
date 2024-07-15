@@ -79,7 +79,7 @@ jobs:
           tags: ghcr.io/${{ github.repository_owner }}/puck:${{ needs.create-tag.outputs.version }}, ghcr.io/${{ github.repository_owner }}/puck:latest
 
   beta-relese:
-    needs: [create-tag, build-cli, build-image]
+    needs: [create-tag, build-cli]
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts

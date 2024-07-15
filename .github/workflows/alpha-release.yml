@@ -51,7 +51,7 @@ jobs:
             puck-linux-amd64
 
   build-image:
-    needs: [create-tag, build-cli]
+    needs: [create-tag]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
