@@ -17,6 +17,17 @@ Well about that...
 
 > Puck itself is really fast since it's written in GO but the actual speed depends on the server
 
+### Supported Target Operating Systems
+
+Currently puck supports these operating systems/package managers:
+
+- Ubuntu (apt)
+- Debian (apt)
+- Fedora (dnf)
+- Open Suse (dnf)
+- Alpine (apk)
+- Arch (pacman) _why would you run arch in a server 🤨_
+
 ### Todo 📃
 
 - [x] Redesign the CLI UI
@@ -25,7 +36,6 @@ Well about that...
 - [ ] Discord notifications
 - [x] Ntfy notifications
 - [x] Ability not to use sudo (for systems running with root)
-- [ ] Update systems?
 - [x] Support for other package managers (currently only supporting apt)
 
 ### Running 🏃
