@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"slices"
 	"time"
 
 	"github.com/briandowns/spinner"
@@ -11,11 +10,17 @@ import (
 	"github.com/goccy/go-yaml"
 	"github.com/spf13/cobra"
 	"github.com/steveiliop56/puck/internal/config"
+	"github.com/steveiliop56/puck/internal/notifications"
 	"github.com/steveiliop56/puck/internal/updatechecker"
+	"github.com/steveiliop56/puck/internal/validators"
 )
+
+// Define flag variable
+var doNtfy bool;
 
 // Adds command to cobra
 func init() {
+	checkCmd.Flags().BoolVarP(&doNtfy, "ntfy", "n", false, "Send a notification via ntfy when check is done.")
 	rootCmd.AddCommand(checkCmd)
 }
 
@@ -29,9 +34,9 @@ var checkCmd = &cobra.Command{
 		var configRaw, readErr = os.ReadFile(configFile)
 		if readErr != nil {
 			color.Set(color.FgRed)
-			fmt.Print("\n✗ ")
+			fmt.Print("✗ ")
 			color.Unset()
-			fmt.Print(" Cannot read config!")
+			fmt.Println(" Cannot read config!")
 			os.Exit(1)
 		}
 
@@ -40,15 +45,35 @@ var checkCmd = &cobra.Command{
 		var unmarshalErr = yaml.Unmarshal(configRaw, &config)
 		if unmarshalErr != nil {
 			color.Set(color.FgRed)
-			fmt.Print("\n✗ ")
+			fmt.Print("✗ ")
 			color.Unset()
-			fmt.Print("Cannot parse config!")
+			fmt.Println("Cannot parse config!")
 			os.Exit(1)
 		}
 
-		// Create 2 lists for skipped and upgradable servers
+		// Validates config file
+		var validateErr = validators.ValidateConfig(config)
+		if validateErr != nil {
+			color.Set(color.FgRed)
+			fmt.Print("✗ ")
+			color.Unset()
+			fmt.Println("Cannot validate config!")
+			os.Exit(1)
+		}
+
+		// Verify ntfy url exists if ntfy is enabled
+		if doNtfy && config.NtfyURL == "" {
+			color.Set(color.FgYellow)
+			fmt.Print("● ")
+			color.Unset()
+			fmt.Println("Ntfy notifications enabled but ntfy url not set, notification won't be sent!")
+			doNtfy = false;
+		}
+
+		// Create 3 lists for skipped, upgradable and up to date servers
 		var upgradable = []string{}
 		var skipped = []string{}
+		var uptodate = []string{}
 
 		// Create spinner
 		var spinnerAnimation = []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
@@ -56,7 +81,7 @@ var checkCmd = &cobra.Command{
 		spinner.Suffix = " Checking for updates...\n"
 		spinner.Start()
 
-		// For each server check if its upgradable and add it in the upgradable list, if its skipped add it to the skipped list and if there is an error stop the cli
+		// For each server check if its upgradable and add it in the upgradable list, if its skipped add it to the skipped list, if its up to date add it to the uptodate list and if there is an error stop the cli
 		for _, element := range config.Servers {
 			var hasUpdate, isSkipped, err = updatechecker.GetUpgrades(element)
 			if err != nil {
@@ -73,6 +98,7 @@ var checkCmd = &cobra.Command{
 			if isSkipped {
 				skipped = append(skipped, element.Name)
 			}
+			uptodate = append(uptodate, element.Name)
 		}
 
 		// Stops the spinner and shows the check finished message
@@ -83,24 +109,31 @@ var checkCmd = &cobra.Command{
 		color.Unset()
 		fmt.Println("Update check finished!")
 		
-		// Prints each server's status (skipped, upgradable)
-		for _, element := range config.Servers {
-			if slices.Contains(upgradable, element.Name) {
-				color.Set(color.FgBlue)
-				fmt.Print("↻ ")
-				color.Unset()
-				fmt.Printf("Server %s has an update!\n", element.Name)
-			} else if slices.Contains(skipped, element.Name) {
-				color.Set(color.FgYellow)
-				fmt.Print("● ")
-				color.Unset()
-				fmt.Printf("Server %s skipped, unsupported distro.\n", element.Name)
-			} else {
-				color.Set(color.FgGreen)
-				fmt.Print("✔ ")
-				color.Unset()
-				fmt.Printf("Server %s is up to date!\n", element.Name)
-			}
+		// Prints each server's status (skipped, upgradable, uptodate)
+		for _, element := range upgradable {
+			color.Set(color.FgBlue)
+			fmt.Print("↻ ")
+			color.Unset()
+			fmt.Printf("Server %s has an update!\n", element)
+		}
+
+		for _, element := range skipped {
+			color.Set(color.FgYellow)
+			fmt.Print("● ")
+			color.Unset()
+			fmt.Printf("Server %s skipped, unsupported distro.\n", element)
+		}
+
+		for _, element := range uptodate {
+			color.Set(color.FgGreen)
+			fmt.Print("✔ ")
+			color.Unset()
+			fmt.Printf("Server %s is up to date!\n", element)
+		}
+
+		// Check if ntfy is enabled and if it is send a notification
+		if doNtfy {
+			notifications.NotifyNtfy(skipped, upgradable, uptodate, config.NtfyURL)
 		}
 	},
 }

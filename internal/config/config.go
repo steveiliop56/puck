@@ -12,5 +12,6 @@ type Server struct {
 
 // Main config schema
 type Config struct {
+	NtfyURL string `validate:"url" yaml:"ntfyUrl"`
 	Servers []Server
 }

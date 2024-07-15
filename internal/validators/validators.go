@@ -18,3 +18,15 @@ func ValidateServer(server config.Server) (error) {
 
 	return nil
 }
+
+// Given the root config struct it validates it, if there is an error it returns an error
+func ValidateConfig(config config.Config) (error) {
+	validate = validator.New(validator.WithRequiredStructEnabled())
+
+	var validateErr = validate.Struct(config)
+	if validateErr != nil {
+		return validateErr
+	}
+
+	return nil
+}
